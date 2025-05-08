@@ -21,6 +21,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Organizer routes
     Route::apiResource('events', EventController::class);
+    // Explicit route for updating events to ensure PUT requests work
+    Route::put('/events/{event}', [EventController::class, 'update']);
     Route::apiResource('tickets', TicketController::class);
 
     // Attendee routes
@@ -30,10 +32,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/events/{event}/report', [ReportController::class, 'store']);
     Route::get('/bookings/{booking}/qr', [BookingController::class, 'qrCode']);
     Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel']);
+    // مسار جلب تفاصيل الحجز بشكل صريح
+    Route::get('/bookings/{booking}', [App\Http\Controllers\BookingController::class, 'show']);
+    // مسار جلب كود QR للحجز بشكل صريح
+    Route::get('/bookings/{booking}/qr-code', [App\Http\Controllers\BookingController::class, 'qrCode']);
 
     // Admin routes
     Route::get('/organizers/pending', [OrganizerController::class, 'pendingApprovals']);
     Route::post('/organizers/{organizer}/approve', [OrganizerController::class, 'approve']);
     Route::get('/reports', [ReportController::class, 'index']);
     Route::put('/reports/{report}', [ReportController::class, 'update']);
+
+    // مسار جلب بيانات المستخدم الحالي
+    Route::get('/profile', [AuthController::class, 'profile']);
+    Route::middleware('auth:sanctum')->put('/profile', [App\Http\Controllers\AuthController::class, 'updateProfile']);
 }); 

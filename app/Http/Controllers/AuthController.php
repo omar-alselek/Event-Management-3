@@ -153,4 +153,22 @@ class AuthController extends Controller
             'token' => $token,
         ], 201);
     }
+
+    public function profile(Request $request)
+    {
+        return response()->json($request->user());
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        $data = $request->only(['name', 'phone']);
+        // معالجة رفع الصورة إذا وجدت
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar'] = $avatarPath;
+        }
+        $user->update($data);
+        return response()->json(['message' => 'تم تحديث البيانات بنجاح', 'user' => $user]);
+    }
 } 

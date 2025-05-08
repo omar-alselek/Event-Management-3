@@ -16,7 +16,7 @@ return new class extends Migration
             $table->decimal('total_price', 10, 2);
             $table->string('qr_code')->unique()->nullable();
             $table->json('attendee_names'); // Store names of all attendees
-            $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending');
             $table->timestamps();
         });
     }

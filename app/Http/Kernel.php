@@ -14,7 +14,12 @@ class Kernel extends HttpKernel
      * @var array<int, class-string|string>
      */
     protected $middleware = [
-        //
+        \Illuminate\Http\Middleware\HandleCors::class,
+        \Illuminate\Http\Middleware\TrustProxies::class,
+        \Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \Illuminate\Foundation\Http\Middleware\TrimStrings::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
     ];
 
     /**
@@ -28,7 +33,9 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            // API middleware group
+            \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+            \Illuminate\Http\Middleware\HandleCors::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
 
@@ -62,5 +69,6 @@ class Kernel extends HttpKernel
      */
     protected $routeMiddleware = [
         'checkrole' => \App\Http\Middleware\CheckRole::class,
+        
     ];
 } 

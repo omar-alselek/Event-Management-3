@@ -20,10 +20,10 @@ class Authenticate
 
     protected function redirectTo($request)
     {
-        if ($request->expectsJson()) {
+        if ($request->expectsJson() || $request->is('api/*')) {
             abort(response()->json(['message' => 'Unauthenticated.'], 401));
         }
-        // يمكنك إعادة توجيه المستخدم هنا إذا كان الطلب ليس API
-        // return route('login');
+        // التوجيه الافتراضي للويب فقط
+        return route('admin.login');
     }
 }

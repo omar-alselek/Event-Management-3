@@ -16,10 +16,22 @@ class BookingController extends Controller
 
     public function index(Request $request)
     {
-        $bookings = Booking::with(['ticket.event', 'user'])
-            ->where('user_id', $request->user()->id)
-            ->paginate(10);
-
+        $user = $request->user();
+        if ($user->role === 'attendee') {
+            $bookings = Booking::with(['ticket.event', 'user'])
+                ->where('user_id', $user->id)
+                ->paginate(10);
+        } elseif ($user->isOrganizer() && $user->is_approved) {
+            $bookings = Booking::with(['ticket.event', 'user'])
+                ->whereHas('ticket.event', function($q) use ($user) {
+                    $q->where('organizer_id', $user->organizer->id);
+                })
+                ->paginate(10);
+        } elseif ($user->isAdmin()) {
+            $bookings = Booking::with(['ticket.event', 'user'])->paginate(10);
+        } else {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
         return response()->json($bookings);
     }
 

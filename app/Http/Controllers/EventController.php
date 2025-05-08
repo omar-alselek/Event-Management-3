@@ -57,25 +57,45 @@ class EventController extends Controller
     // تحديث فعالية
     public function update(Request $request, Event $event)
     {
-        $data = $request->only([
-            'title',
-            'description',
-            'location',
-            'latitude',
-            'longitude',
-            'start_date',
-            'end_date',
-            'category',
-            'image_path',
-            'video_path',
-            'is_published'
+        // Check if the user is authorized to update this event
+        if (auth()->user()->organizer && auth()->user()->organizer->id != $event->organizer_id) {
+            return response()->json(['error' => 'You are not authorized to update this event'], 403);
+        }
+
+        // Get all input data from the request
+        $data = $request->all();
+        
+        // Log the request data for debugging
+        Log::info('Event update request:', [
+            'event_id' => $event->id,
+            'request_data' => $data,
+            'content_type' => $request->header('Content-Type'),
+            'method' => $request->method()
         ]);
 
-        // سجل البيانات في اللوج للتتبع
-        Log::info('Event update data:', $data);
+        // Filter only the allowed fields
+        $filteredData = array_filter($data, function($key) {
+            return in_array($key, [
+                'title',
+                'description',
+                'location',
+                'latitude',
+                'longitude',
+                'start_date',
+                'end_date',
+                'category',
+                'image_path',
+                'video_path',
+                'is_published'
+            ]);
+        }, ARRAY_FILTER_USE_KEY);
 
-        $event->update($data);
+        // Update the event with the filtered data
+        $event->update($filteredData);
         $event->refresh();
+
+        // Log the updated event for debugging
+        Log::info('Event updated successfully:', ['event' => $event->toArray()]);
 
         return response()->json($event);
     }
